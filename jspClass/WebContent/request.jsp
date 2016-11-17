@@ -1,0 +1,102 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+pageEncoding="UTF-8" import="java.sql.*"%>
+
+<% request.setCharacterEncoding("utf-8"); %>
+<%
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+
+	String jdbc_driver = "com.mysql.jdbc.Driver";
+	String jdbc_url = "jdbc:mysql://localhost/jspdb";
+	String id=request.getParameter("id");
+	String password;
+
+	try{
+	Class.forName(jdbc_driver);
+
+	conn = DriverManager.getConnection(jdbc_url,"dmdoa12","gmltjd12");
+	String sql = "select passwd from user where id = ?";
+	pstmt = conn.prepareStatement(sql);
+	pstmt.setString(1, id);
+
+	ResultSet rs = pstmt.executeQuery();
+	
+		if(rs.getString("passwd")==null){
+			session.setAttribute("check", "fail");
+		}
+		else{
+		rs.next();
+		password = rs.getString("passwd");
+		rs.close();
+			
+			if (request.getParameter("pw").equals(password)) {
+			session.setAttribute("check", "sucess");
+			session.setAttribute("userid",id);
+			}
+		}	
+	}
+	catch(Exception e){
+		System.out.println(e);
+	}
+
+conn.close();
+
+%>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>수강신청</title>
+</head>
+<body>
+	<center>
+	<%
+		if (session.getAttribute("check").equals("sucess")) {
+	%>
+
+	<%=session.getAttribute("userid")%>님 로그인 하셨습니다.<a href="MidTerm_logout.jsp">로그아웃</a>
+
+	<%
+		} else {
+	%>
+
+	로그인을 하지 않으셨습니다.<a href="MidTerm_login.jsp">로그인</a>
+
+	<%
+		}
+	%>
+<h2>2017년 1학기 수강신청</h2>
+<form name="dataInput" method="post"
+action="MidTerm_sugang_result.jsp">
+<table border="1" align="center">
+	<!-- 이름 -->
+	<tr>
+		<td width="100">이름</td>
+		<td><input type="text" name="name" size="50"></td>
+	</tr>
+	<!-- 학번 -->
+	<tr>
+		<td width="100">학번</td>
+		<td><input type="text" name="student_num" size="50"></td>
+	</tr>
+	<!-- 과목 -->
+	<tr>
+		<td width="100">과목</td>
+		<td><input type="checkbox" name="subject" value="Java" />Java
+			<input type="checkbox" name="subject" value="Database" />Database
+			<input type="checkbox" name="subject" value="Jsp" />Jsp <input
+			type="checkbox" name="subject" value="Iot" />Iot <input
+			type="checkbox" name="subject" value="Android" />Android</td>
+		</tr>
+		<!-- 버튼 -->
+		<tr>
+			<td colspan="2" align="center"><input type="submit"
+				value="수강신청"> <input type="reset" value="수강취소"></td>
+			</tr>
+		</table>
+	</form>
+	<br> <a href="MidTerm_sugang_total.jsp">현재 과목 수강 신청 현황</a>
+</center>
+</body>
+</html>
